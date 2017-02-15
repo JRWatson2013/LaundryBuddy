@@ -39,6 +39,7 @@
         </activity>
         <activity android:name=".Instructions"></activity>
         <activity android:name=".NumberPickerActivity"></activity>
+        <activity android:name=".LaundromatActivity"></activity>
     </application>
 
 </manifest>

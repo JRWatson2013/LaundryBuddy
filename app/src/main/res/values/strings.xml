@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LaundryBuddy</string>
+    <string name="app_name">Laundry Buddy</string>
     <string name="title_activity_main">Map</string>
     <string name="timer_start">Start</string>
     <string name="timer_button">Timer</string>
