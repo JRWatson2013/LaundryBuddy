@@ -86,6 +86,10 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
         startActivity(mInstrIntent);
     }
 
+    public void goToTimer(View v) {
+        Intent mTimerIntent = new Intent(Main.this, NumberPickerActivity.class);
+        startActivity(mTimerIntent);
+    }
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){

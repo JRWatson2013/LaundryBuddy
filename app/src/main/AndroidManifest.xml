@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Instructions"></activity>
+        <activity android:name=".NumberPickerActivity"></activity>
     </application>
 
 </manifest>
