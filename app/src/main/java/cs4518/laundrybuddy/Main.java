@@ -11,8 +11,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -30,7 +32,7 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
-
+    private Button mLaundromatButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +49,15 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                 .build();
 
         mApiClient.connect();
+
+        mLaundromatButton = (Button) findViewById(R.id.laundromat_test_button);
+        mLaundromatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Main.this, LaundromatActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
 
