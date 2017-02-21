@@ -4,4 +4,6 @@
     <string name="timer_start">Start</string>
     <string name="timer_button">Timer</string>
     <string name="Instr_button">Instructions</string>
+    <string name="timer_stop">Stop</string>
+    <string name="timer_minute">Minutes</string>
 </resources>
