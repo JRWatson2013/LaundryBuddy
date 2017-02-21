@@ -10,15 +10,24 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,6 +36,10 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -88,7 +101,7 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
             markerOptions.title("Current Position");
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             mMap.addMarker(markerOptions);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 4));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 5));
         }
     }
 
@@ -144,6 +157,47 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mMap.addMarker(markerOptions);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,mMap.getMaxZoomLevel()-4));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 5));
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String requestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCp0KMvz_OD8nDFZ1dcAJU9s4kOwVjqjUg&location=" + latLng.latitude + "," + latLng.longitude + "&rankby=distance&type=laundry";
+        Log.v("LB",requestURL);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, requestURL, null,
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response){
+                        Log.v("LB",response.toString());
+                        JSONArray results;
+                        try {
+                            results = response.getJSONArray("results");
+                        } catch (JSONException e) {
+                            Log.v("LG:", "No results section");
+                            return;
+                        }
+                        for(int i = 0; i < results.length(); i ++){
+                            LaundryLocation loc;
+                            try{
+                                loc = new LaundryLocation(results.getJSONObject(i));
+                            } catch (JSONException e){
+                                Log.v("LG:", "Bad result");
+                                continue;
+                            }
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(loc.getLocation());
+                            markerOptions.title(loc.getName());
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                           //x mMap.addMarker(markerOptions);
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Log.v("LB","NO RESPONSE");
+                    }
+                });
+        queue.add(request);
     }
 }
