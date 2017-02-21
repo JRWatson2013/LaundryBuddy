@@ -18,7 +18,7 @@
             android:layout_weight="1" />
 
         <TextView
-            android:text="Minutes"
+            android:text="@string/timer_minute"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/textView"
@@ -28,18 +28,33 @@
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
 
         <Button
             android:text="@string/timer_start"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/button_timer_start"
             android:layout_weight="1"
             android:layout_marginTop="5dp" />
 
+        <Button
+            android:text="@string/timer_stop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_timer_stop"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp" />
+
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_time_remaining"
+        android:layout_weight="0.25"
+        android:textSize="18sp" />
 </LinearLayout>
