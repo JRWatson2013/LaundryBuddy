@@ -1,5 +1,7 @@
 package cs4518.laundrybuddy;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -9,6 +11,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.instantapps.LaunchData;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
@@ -21,7 +24,7 @@ import java.util.Map;
  * Created by andy on 2/21/17.
  */
 
-public class LaundryLocation {
+public class LaundryLocation implements Parcelable {
     private String mName;
     private String mID;
     private LatLng mLocation;
@@ -178,5 +181,48 @@ public class LaundryLocation {
             }
         };
         queue.add(postRequest);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mName);
+        parcel.writeString(mID);
+        parcel.writeDouble(mLocation.latitude);
+        parcel.writeDouble(mLocation.longitude);
+        parcel.writeInt(mBusy);
+        parcel.writeInt(mNumWashers);
+        parcel.writeInt(mNumDryers);
+        parcel.writeInt(mWashersInUse);
+        parcel.writeInt(mDryersInUse);
+        parcel.writeInt(mCheckInCount);
+    }
+
+    public static final Parcelable.Creator<LaundryLocation> CREATOR = new Parcelable.Creator<LaundryLocation>() {
+        public LaundryLocation createFromParcel(Parcel in) {
+            return new LaundryLocation(in);
+        }
+
+        public LaundryLocation[] newArray(int size) {
+            return new LaundryLocation[size];
+        }
+    };
+
+    public LaundryLocation(Parcel in){
+        mName = in.readString();
+        mID = in.readString();
+        double lat = in.readDouble();
+        double lng = in.readDouble();
+        mLocation = new LatLng(lat,lng);
+        setBusy(in.readInt());
+        setNumWashers(in.readInt());
+        setNumDryers(in.readInt());
+        setWashersInUse(in.readInt());
+        setDryersInUse(in.readInt());
+        setCheckInCount(in.readInt());
     }
 }

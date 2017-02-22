@@ -40,7 +40,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
@@ -231,5 +231,14 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                     }
                 });
         queue.add(request);
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker){
+        LaundryLocation loc;
+        loc = markerLaundyMap.get(marker.getId());
+        Intent i = new Intent(Main.this, LaundromatActivity.class);
+        i.putExtra("location",loc);
+        startActivity(i);
     }
 }
