@@ -1,6 +1,7 @@
 package cs4518.laundrybuddy;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class LaundromatActivity extends AppCompatActivity {
@@ -20,6 +22,7 @@ public class LaundromatActivity extends AppCompatActivity {
     private int totalMachines;
     private int washersOpen;
     private int dryersOpen;
+    private LaundryLocation mLocation;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -50,6 +53,11 @@ public class LaundromatActivity extends AppCompatActivity {
                 onCreate(savedInstanceState);
             }
         });
+
+        Intent intent = getIntent();
+        mLocation = intent.getParcelableExtra("location");
+        TextView name = (TextView) findViewById(R.id.laundromat_name);
+        name.setText(mLocation.getName());
     }
 
     @Override
