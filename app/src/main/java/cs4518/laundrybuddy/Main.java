@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,17 +29,23 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.text.Text;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
     private Button mLaundromatButton;
+    private Map<String,LaundryLocation> markerLaundyMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +103,28 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
             mMap.addMarker(markerOptions);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 5));
         }
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                LaundryLocation thisLocation = markerLaundyMap.get(marker.getId());
+                View v = getLayoutInflater().inflate(R.layout.info_window, null);
+                TextView title =(TextView) v.findViewById(R.id.info_window_title);
+                title.setText(thisLocation.getName());
+                TextView washers =(TextView) v.findViewById(R.id.info_window_washers);
+                TextView dryers =(TextView) v.findViewById(R.id.info_window_dryers);
+                TextView busy =(TextView) v.findViewById(R.id.info_window_busy);
+                washers.setText(thisLocation.getNumWashers() + "/" " washers");
+                dryers.setText(thisLocation.getNumDryers() + " dryers");
+                busy.setText(thisLocation.getBusy() + " busy");
+                return v;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                return null;
+            }
+        });
+        markerLaundyMap = new HashMap<String, LaundryLocation>();
     }
 
     public void goToInstr(View v) {
@@ -185,7 +214,9 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                             markerOptions.position(loc.getLocation());
                             markerOptions.title(loc.getName());
                             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                            mMap.addMarker(markerOptions);
+                            markerOptions.snippet("30 Washers\n40 Dryers\nVery Busy");
+                            String id = mMap.addMarker(markerOptions).getId();
+                            markerLaundyMap.put(id,loc);
                         }
                     }
                 },
