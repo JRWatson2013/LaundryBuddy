@@ -113,8 +113,8 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                 TextView washers =(TextView) v.findViewById(R.id.info_window_washers);
                 TextView dryers =(TextView) v.findViewById(R.id.info_window_dryers);
                 TextView busy =(TextView) v.findViewById(R.id.info_window_busy);
-                washers.setText(thisLocation.getNumWashers() + "/" " washers");
-                dryers.setText(thisLocation.getNumDryers() + " dryers");
+                washers.setText(thisLocation.getWashersInUse() + "/" + thisLocation.getNumWashers() + " washers");
+                dryers.setText(thisLocation.getDryersInUse() + "/" + thisLocation.getNumDryers() + " dryers");
                 busy.setText(thisLocation.getBusy() + " busy");
                 return v;
             }
