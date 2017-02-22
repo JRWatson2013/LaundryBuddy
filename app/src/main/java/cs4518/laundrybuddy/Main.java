@@ -186,7 +186,7 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 6));
 
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
+        final RequestQueue queue = Volley.newRequestQueue(this);
 
         String requestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCp0KMvz_OD8nDFZ1dcAJU9s4kOwVjqjUg&location=" + latLng.latitude + "," + latLng.longitude + "&rankby=distance&type=laundry";
         Log.v("LB",requestURL);
@@ -210,6 +210,10 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                                 Log.v("LG:", "Bad result");
                                 continue;
                             }
+
+                            // Get info from LaundryBuddy server
+                            loc.getInfoFromLaundryBuddy(queue);
+
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(loc.getLocation());
                             markerOptions.title(loc.getName());

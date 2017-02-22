@@ -2,10 +2,20 @@ package cs4518.laundrybuddy;
 
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by andy on 2/21/17.
@@ -114,5 +124,59 @@ public class LaundryLocation {
             Log.v("LG","Bad Location JSONObject");
             return;
         }
+    }
+
+    void getInfoFromLaundryBuddy(RequestQueue queue){
+
+        String url = "http://130.215.251.227:8080/getPlaceInfo";
+        Map<String, String> jsonParams = new HashMap<String, String>();
+        jsonParams.put("location",this.getID());
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST,url,
+                new JSONObject(jsonParams),
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.v("LG",response.toString());
+                        String returnedID = "";
+                        try {
+                            returnedID = response.getString("locationID");
+                        } catch (JSONException e){
+                            Log.v("LG","Error parsing out locationID");
+                        }
+                        if(returnedID == "-1" || returnedID == ""){
+                            setNumWashers(-1);
+                            setNumDryers(-1);
+                            setDryersInUse(-1);
+                            setWashersInUse(-1);
+                            setCheckInCount(-1);
+                            return;
+                        }
+                        try {
+                            setNumWashers(response.getInt("washerCount"));
+                            setNumDryers(response.getInt("dryerCount"));
+                            setDryersInUse(response.getInt("dryersInUse"));
+                            setWashersInUse(response.getInt("washersInUse"));
+                            setCheckInCount(response.getInt("checkInCount"));
+                        } catch (JSONException e){
+                            Log.v("LG","Error parsing placeInfo JSON object");
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.v("LG","Error getting location info from LaundryBuddy server");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("User-agent", System.getProperty("http.agent"));
+                return headers;
+            }
+        };
+        queue.add(postRequest);
     }
 }
