@@ -18,6 +18,9 @@ public class LaundryLocation {
     private int mBusy;
     private int mNumWashers;
     private int mNumDryers;
+    private int mWashersInUse;
+    private int mDryersInUse;
+    private int mCheckInCount;
 
     LaundryLocation(String name, String ID, LatLng location){
         mName = name;
@@ -39,6 +42,30 @@ public class LaundryLocation {
         mName = name;
         mID = ID;
         this.setLocation(location);
+    }
+
+    public int getCheckInCount() {
+        return mCheckInCount;
+    }
+
+    public void setCheckInCount(int checkInCount) {
+        this.mCheckInCount = checkInCount;
+    }
+
+    public int getDryersInUse() {
+        return mDryersInUse;
+    }
+
+    public void setDryersInUse(int mDryersInUse) {
+        this.mDryersInUse = mDryersInUse;
+    }
+
+    public int getWashersInUse() {
+        return mWashersInUse;
+    }
+
+    public void setWashersInUse(int mWashersInUse) {
+        this.mWashersInUse = mWashersInUse;
     }
 
     void setNumDryers(int n){
