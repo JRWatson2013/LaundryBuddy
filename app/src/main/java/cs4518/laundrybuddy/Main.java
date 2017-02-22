@@ -1,6 +1,5 @@
 package cs4518.laundrybuddy;
 
-import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,20 +18,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,7 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
@@ -116,14 +109,16 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
     }
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            LocationRequest mLocationRequest = LocationRequest.create()
-                    .setInterval(5000)
-                    .setFastestInterval(3000)
-                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mApiClient, mLocationRequest, this);
-        }
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+//            LocationRequest mLocationRequest = LocationRequest.create()
+//                    .setInterval(5000)
+//                    .setFastestInterval(3000)
+//                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//            LocationServices.FusedLocationApi.requestLocationUpdates(
+//                    mApiClient, mLocationRequest, this);
+//        }
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
+        initMap(mLastLocation);
     }
 
     @Override
@@ -140,24 +135,26 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 0: {
-                LocationRequest mLocationRequest = LocationRequest.create()
-                        .setInterval(5000)
-                        .setFastestInterval(3000)
-                        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-                LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, mLocationRequest, this);
+//                LocationRequest mLocationRequest = LocationRequest.create()
+//                        .setInterval(5000)
+//                        .setFastestInterval(3000)
+//                        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//                LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, mLocationRequest, this);
+                Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
+                initMap(mLastLocation);
             }
         }
     }
-    @Override
-    public void onLocationChanged(Location location) {
+    public void initMap(Location location){
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.clear();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.curlocation));
+//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mMap.addMarker(markerOptions);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 5));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 6));
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -188,7 +185,7 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                             markerOptions.position(loc.getLocation());
                             markerOptions.title(loc.getName());
                             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                           //x mMap.addMarker(markerOptions);
+                            mMap.addMarker(markerOptions);
                         }
                     }
                 },
