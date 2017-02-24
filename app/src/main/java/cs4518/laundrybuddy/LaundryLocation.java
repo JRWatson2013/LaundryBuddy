@@ -20,13 +20,10 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by andy on 2/21/17.
- */
-
 public class LaundryLocation implements Parcelable {
     private String mName;
     private String mID;
+    private String mPlace;
     private LatLng mLocation;
     private int mBusy;
     private int mNumWashers;
@@ -35,10 +32,11 @@ public class LaundryLocation implements Parcelable {
     private int mDryersInUse;
     private int mCheckInCount;
 
-    LaundryLocation(String name, String ID, LatLng location){
+    LaundryLocation(String name, String ID, LatLng location, String place){
         mName = name;
         mID = ID;
         mLocation = location;
+        mPlace = place;
     }
 
     LaundryLocation(JSONObject obj){
@@ -46,6 +44,7 @@ public class LaundryLocation implements Parcelable {
             mName = obj.getString("name");
             mID = obj.getString("id");
             this.setLocation(obj.getJSONObject("geometry").getJSONObject("location"));
+            this.setPlace(obj.getString("vicinity"));
         } catch (JSONException e) {
             Log.v("LG", "Could not convert JSON to LaundryLocation");
         }
@@ -55,6 +54,14 @@ public class LaundryLocation implements Parcelable {
         mName = name;
         mID = ID;
         this.setLocation(location);
+    }
+
+    public String getPlace() {
+        return mPlace;
+    }
+
+    public void setPlace(String mPlace) {
+        this.mPlace = mPlace;
     }
 
     public int getCheckInCount() {
@@ -131,7 +138,7 @@ public class LaundryLocation implements Parcelable {
 
     void getInfoFromLaundryBuddy(RequestQueue queue){
 
-        String url = "http://130.215.251.227:8080/getPlaceInfo";
+        String url = "http://130.215.10.9:8080/getPlaceInfo";
         Map<String, String> jsonParams = new HashMap<String, String>();
         jsonParams.put("location",this.getID());
         JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST,url,
@@ -192,6 +199,7 @@ public class LaundryLocation implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mName);
         parcel.writeString(mID);
+        parcel.writeString(mPlace);
         parcel.writeDouble(mLocation.latitude);
         parcel.writeDouble(mLocation.longitude);
         parcel.writeInt(mBusy);
@@ -215,6 +223,7 @@ public class LaundryLocation implements Parcelable {
     public LaundryLocation(Parcel in){
         mName = in.readString();
         mID = in.readString();
+        mPlace = in.readString();
         double lat = in.readDouble();
         double lng = in.readDouble();
         mLocation = new LatLng(lat,lng);

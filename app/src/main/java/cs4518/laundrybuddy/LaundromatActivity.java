@@ -30,6 +30,17 @@ public class LaundromatActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_laundromat);
 
+        Intent intent = getIntent();
+        mLocation = intent.getParcelableExtra("location");
+        TextView name = (TextView) findViewById(R.id.laundromat_name);
+        name.setText(mLocation.getName());
+        TextView address = (TextView) findViewById(R.id.laundromat_address);
+        address.setText(mLocation.getPlace());
+
+        totalMachines = mLocation.getNumDryers() + mLocation.getNumWashers() + 3;
+        washersOpen = mLocation.getNumWashers() - mLocation.getWashersInUse();
+        dryersOpen = mLocation.getNumDryers() - mLocation.getDryersInUse();
+
         populateMachineList();
 
         GridView gridview = (GridView) findViewById(R.id.GridView);
@@ -51,14 +62,8 @@ public class LaundromatActivity extends FragmentActivity {
                         }
                  */
                 populateMachineList();
-                onCreate(savedInstanceState);
             }
         });
-
-        Intent intent = getIntent();
-        mLocation = intent.getParcelableExtra("location");
-        TextView name = (TextView) findViewById(R.id.laundromat_name);
-        name.setText(mLocation.getName());
     }
 
     @Override
