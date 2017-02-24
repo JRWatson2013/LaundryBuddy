@@ -1,6 +1,12 @@
 package cs4518.laundrybuddy;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
@@ -30,7 +36,7 @@ public class NumberPickerActivity extends Activity implements OnClickListener {
 
         numberPicker = (NumberPicker) findViewById(R.id.time_picker);
         numberPicker.setMaxValue(180);
-        numberPicker.setMinValue(0);
+        numberPicker.setMinValue(1);
         numberPicker.setWrapSelectorWheel(true);
 
 
