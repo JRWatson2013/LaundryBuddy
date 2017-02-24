@@ -41,6 +41,7 @@
         <activity android:name=".Instructions"></activity>
         <activity android:name=".NumberPickerActivity"></activity>
         <activity android:name=".LaundromatActivity"></activity>
+        <service android:name=".GeofenceTransitionsIntentService"/>
     </application>
 
 </manifest>
