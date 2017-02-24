@@ -1,6 +1,7 @@
 package cs4518.laundrybuddy;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -22,6 +23,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,7 +40,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener {
@@ -46,6 +51,9 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
     public GoogleApiClient mApiClient;
     private Button mLaundromatButton;
     private Map<String,LaundryLocation> markerLaundyMap;
+    private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
+    private PendingIntent mGeofencePendingIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -222,7 +230,23 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
                             markerOptions.snippet("30 Washers\n40 Dryers\nVery Busy");
                             String id = mMap.addMarker(markerOptions).getId();
                             markerLaundyMap.put(id,loc);
+                            mGeofenceList.add(new Geofence.Builder()
+                                    .setRequestId(loc.getID())
+                                    .setCircularRegion(
+                                            loc.getLocation().latitude,
+                                            loc.getLocation().longitude,
+                                            50)
+                                    .setExpirationDuration(300000)
+                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                                    .build());
                         }
+                        LocationServices.GeofencingApi.removeGeofences(
+                                mApiClient, getGeofencePendingIntent()
+                        );
+                        LocationServices.GeofencingApi.addGeofences(
+                                mApiClient, getGeofencingRequest(), getGeofencePendingIntent()
+                        );
                     }
                 },
                 new Response.ErrorListener(){
@@ -241,5 +265,20 @@ public class Main extends FragmentActivity implements OnMapReadyCallback, Google
         Intent i = new Intent(Main.this, LaundromatActivity.class);
         i.putExtra("location",loc);
         startActivity(i);
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
