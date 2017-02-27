@@ -2,6 +2,7 @@ package cs4518.laundrybuddy;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -62,6 +63,14 @@ public class LaundromatActivity extends FragmentActivity {
                         }
                  */
                 populateMachineList();
+            }
+        });
+
+        FloatingActionButton closeButton = (FloatingActionButton) findViewById(R.id.close_action_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }

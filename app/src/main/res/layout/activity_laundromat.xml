@@ -62,4 +62,17 @@
             android:numColumns="2" />
 
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/close_action_button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:src="@drawable/check"
+        android:layout_margin="16dp" />
+
 </RelativeLayout>
+
+
