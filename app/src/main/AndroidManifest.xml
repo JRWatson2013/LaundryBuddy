@@ -38,8 +38,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Instructions"></activity>
-        <activity android:name=".NumberPickerActivity"></activity>
+        <activity android:name=".InstructionsFragment"></activity>
+        <activity android:name=".TimerFragment"></activity>
         <activity android:name=".LaundromatActivity"></activity>
         <service android:name=".GeofenceTransitionsIntentService"/>
     </application>

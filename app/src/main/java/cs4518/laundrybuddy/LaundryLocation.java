@@ -138,7 +138,7 @@ public class LaundryLocation implements Parcelable {
 
     void getInfoFromLaundryBuddy(RequestQueue queue){
 
-        String url = "http://130.215.10.9:8080/getPlaceInfo";
+        String url = "http://130.215.251.227:8080/getPlaceInfo";
         Map<String, String> jsonParams = new HashMap<String, String>();
         jsonParams.put("location",this.getID());
         JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST,url,

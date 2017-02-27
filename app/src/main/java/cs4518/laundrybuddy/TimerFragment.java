@@ -7,6 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,7 +22,7 @@ import android.widget.Toast;
 import android.view.animation.AnimationUtils;
 
 
-public class NumberPickerActivity extends Activity implements OnClickListener {
+public class TimerFragment extends Fragment implements OnClickListener {
 
     private Button buttonStartTime, buttonStopTime;
     private TextView textViewShowTime;
@@ -29,23 +32,30 @@ public class NumberPickerActivity extends Activity implements OnClickListener {
     private boolean blink;
     private NumberPicker numberPicker;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_timer);
 
-        numberPicker = (NumberPicker) findViewById(R.id.time_picker);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.activity_timer, container, false);
+        numberPicker = (NumberPicker) v.findViewById(R.id.time_picker);
         numberPicker.setMaxValue(180);
         numberPicker.setMinValue(1);
         numberPicker.setWrapSelectorWheel(true);
 
 
-        buttonStartTime = (Button) findViewById(R.id.button_timer_start);
-        buttonStopTime = (Button) findViewById(R.id.button_timer_stop);
-        textViewShowTime = (TextView) findViewById(R.id.textView_time_remaining);
+        buttonStartTime = (Button) v.findViewById(R.id.button_timer_start);
+        buttonStopTime = (Button) v.findViewById(R.id.button_timer_stop);
+        textViewShowTime = (TextView) v.findViewById(R.id.textView_time_remaining);
 
         buttonStartTime.setOnClickListener(this);
         buttonStopTime.setOnClickListener(this);
+        return v;
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -68,7 +78,7 @@ public class NumberPickerActivity extends Activity implements OnClickListener {
         if (numberPicker.getValue() > 0) {
             time = numberPicker.getValue();
         } else {
-            Toast.makeText(NumberPickerActivity.this, "Please Select Minutes.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Please Select Minutes.", Toast.LENGTH_LONG).show();
         }
 
         totalTimeCountInMilliseconds = 60 * time * 1000;
@@ -83,7 +93,7 @@ public class NumberPickerActivity extends Activity implements OnClickListener {
                 long seconds = millisUntilFinished / 1000;
 
                 if (millisUntilFinished < timeBlinkInMilliseconds) {
-                    Animation startBlink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blinking_animation);
+                    Animation startBlink = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.blinking_animation);
                     textViewShowTime.startAnimation(startBlink);
                     if (blink) {
                         textViewShowTime.setVisibility(View.VISIBLE);
@@ -101,7 +111,7 @@ public class NumberPickerActivity extends Activity implements OnClickListener {
 
             @Override
             public void onFinish() {
-                Toast.makeText(NumberPickerActivity.this, "Laundry Time up!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Laundry Time up!", Toast.LENGTH_LONG).show();
                 textViewShowTime.setText("Time Up!");
                 textViewShowTime.setVisibility(View.VISIBLE);
                 buttonStartTime.setVisibility(View.VISIBLE);
