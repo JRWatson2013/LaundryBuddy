@@ -37,7 +37,7 @@ import static android.content.ContentValues.TAG;
  */
 
 public class GeofenceTransitionsIntentService extends IntentService {
-    protected static final String URL = "http://130.215.250.210:8080/checkIn";
+    protected static final String URL = "http://130.215.173.246:8080/checkIn";
     protected static final String TAG = "GeofenceTransitionsIS";
     RequestQueue queue;
     public GeofenceTransitionsIntentService() {

@@ -204,7 +204,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     public void initMap(Location location){
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.clear();
-        MarkerOptions markerOptions = new MarkerOptions();
+        final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.curlocation));
@@ -226,6 +226,33 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                             Log.v("LG:", "No results section");
                             return;
                         }
+                        //TEST CODE!!//
+                        LatLng testLatLng = new LatLng(42.274830,-71.806700);
+                        LaundryLocation testLaund = new LaundryLocation(
+                                "Jakes totally cool laundry",
+                                "9001",
+                                testLatLng,
+                                "Earth I guess"
+                                );
+                        MarkerOptions testMarker = new MarkerOptions();
+                        testMarker.position(testLaund.getLocation());
+                        testMarker.title(testLaund.getName());
+                        testMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                        testMarker.snippet("30 Washers\n40 Dryers\nVery Busy");
+                        String testId = mMap.addMarker(testMarker).getId();
+                        markerLaundryMap.put(testId, testLaund);
+                        mGeofenceList.add(new Geofence.Builder()
+                                .setRequestId(testLaund.getID())
+                                .setCircularRegion(
+                                        testLaund.getLocation().latitude,
+                                        testLaund.getLocation().longitude,
+                                        50)
+                                .setExpirationDuration(300000)
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                Geofence.GEOFENCE_TRANSITION_EXIT)
+                                .build()
+                        );
+                        //END TEST CODE!!//
                         for(int i = 0; i < results.length(); i ++){
                             LaundryLocation loc;
                             try{
