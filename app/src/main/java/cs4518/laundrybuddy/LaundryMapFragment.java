@@ -3,6 +3,7 @@ package cs4518.laundrybuddy;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -122,18 +123,33 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
             public View getInfoWindow(Marker marker) {
                 LaundryLocation thisLocation = markerLaundryMap.get(marker.getId());
                 View v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
-                if(myPositionMarker==marker) {
-                    v.setVisibility(View.GONE);
-                    return v;
-                }
                 TextView title =(TextView) v.findViewById(R.id.info_window_title);
-                title.setText(thisLocation.getName());
                 TextView washers =(TextView) v.findViewById(R.id.info_window_washers);
                 TextView dryers =(TextView) v.findViewById(R.id.info_window_dryers);
                 TextView busy =(TextView) v.findViewById(R.id.info_window_busy);
-                washers.setText(thisLocation.getWashersInUse() + "/" + thisLocation.getNumWashers() + " washers");
-                dryers.setText(thisLocation.getDryersInUse() + "/" + thisLocation.getNumDryers() + " dryers");
-                busy.setText(thisLocation.getBusy() + " busy");
+                if(myPositionMarker.equals(marker)) {
+                    title.setText("Current Location");
+                    washers.setVisibility(View.GONE);
+                    dryers.setVisibility(View.GONE);
+                    busy.setVisibility(View.GONE);
+                    return v;
+                }
+                title.setText(thisLocation.getName());
+                Integer washersAvailableNow = thisLocation.getNumWashers() - thisLocation.getWashersInUse() - thisLocation.getCheckInCount();
+                washers.setText(washersAvailableNow + "/" + thisLocation.getNumWashers() + " washers available");
+                Integer dryersAvailableNow = thisLocation.getNumDryers() - thisLocation.getDryersInUse() - thisLocation.getCheckInCount();
+                dryers.setText(dryersAvailableNow + "/" + thisLocation.getNumDryers() + " dryers available");
+
+                if(thisLocation.getCheckInCount()==0){
+                    busy.setTextColor(Color.GREEN);
+                    busy.setText("Not Busy");
+                } else if (thisLocation.getCheckInCount()<3){
+                    busy.setTextColor(Color.rgb(0xFF,0x60,0x00));
+                    busy.setText("Moderately Busy");
+                } else {
+                    busy.setTextColor(Color.RED);
+                    busy.setText("Very Busy");
+                }
                 return v;
             }
 
@@ -188,7 +204,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     public void initMap(Location location){
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.clear();
-        MarkerOptions markerOptions = new MarkerOptions();
+        final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.curlocation));
@@ -210,6 +226,33 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                             Log.v("LG:", "No results section");
                             return;
                         }
+                        //TEST CODE!!//
+                        LatLng testLatLng = new LatLng(42.274830,-71.806700);
+                        LaundryLocation testLaund = new LaundryLocation(
+                                "Jakes totally cool laundry",
+                                "9001",
+                                testLatLng,
+                                "Earth I guess"
+                                );
+                        MarkerOptions testMarker = new MarkerOptions();
+                        testMarker.position(testLaund.getLocation());
+                        testMarker.title(testLaund.getName());
+                        testMarker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                        testMarker.snippet("30 Washers\n40 Dryers\nVery Busy");
+                        String testId = mMap.addMarker(testMarker).getId();
+                        markerLaundryMap.put(testId, testLaund);
+                        mGeofenceList.add(new Geofence.Builder()
+                                .setRequestId(testLaund.getID())
+                                .setCircularRegion(
+                                        testLaund.getLocation().latitude,
+                                        testLaund.getLocation().longitude,
+                                        50)
+                                .setExpirationDuration(300000)
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                Geofence.GEOFENCE_TRANSITION_EXIT)
+                                .build()
+                        );
+                        //END TEST CODE!!//
                         for(int i = 0; i < results.length(); i ++){
                             LaundryLocation loc;
                             try{
@@ -225,7 +268,13 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(loc.getLocation());
                             markerOptions.title(loc.getName());
-                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            if(loc.getCheckInCount()==0){
+                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            } else if (loc.getCheckInCount()<3){
+                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                            } else {
+                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                            }
                             markerOptions.snippet("30 Washers\n40 Dryers\nVery Busy");
                             String id = mMap.addMarker(markerOptions).getId();
                             markerLaundryMap.put(id,loc);
@@ -259,6 +308,8 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
 
     @Override
     public void onInfoWindowClick(Marker marker){
+        if(marker.equals(myPositionMarker))
+            return;
         LaundryLocation loc;
         loc = markerLaundryMap.get(marker.getId());
         Intent i = new Intent(getActivity(), LaundromatActivity.class);
