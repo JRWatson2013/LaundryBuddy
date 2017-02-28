@@ -12,11 +12,23 @@ import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -25,9 +37,9 @@ import static android.content.ContentValues.TAG;
  */
 
 public class GeofenceTransitionsIntentService extends IntentService {
-
+    protected static final String URL = "http://130.215.250.210:8080/checkIn";
     protected static final String TAG = "GeofenceTransitionsIS";
-
+    RequestQueue queue;
     public GeofenceTransitionsIntentService() {
 
         // Use the TAG to name the worker thread.
@@ -41,10 +53,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
     public void onCreate() {
 
         super.onCreate();
+        queue = Volley.newRequestQueue(this);
 
     }
 
     protected void onHandleIntent(Intent intent) {
+        Map<String, String> jsonParams = new HashMap<String, String>();
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
             String errorMessage = "";
@@ -60,11 +74,48 @@ public class GeofenceTransitionsIntentService extends IntentService {
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-
             // Get the geofences that were triggered. A single event can trigger
             // multiple geofences.
             List triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+            Geofence targetGeofence = (Geofence) triggeringGeofences.get(0);
+            String targetString = targetGeofence.getRequestId();
+            String isEntering = "true";
+            if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                isEntering = "false";
+            }
+            jsonParams.put("locationID",targetString);
+            jsonParams.put("inLocation",isEntering);
+            JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, URL,
+                    new JSONObject(jsonParams),
+                    new Response.Listener<JSONObject>(){
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.v("GEO", response.toString());
+                            String responseCode = "";
+                            try {
+                                responseCode = response.getString("result");
+                            } catch (JSONException e) {
+                                Log.v("GEO", "Error reporting the Geofence");
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.v("GEO", "Error reporting check in info to LaundryBuddy Server");
+                        }
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    headers.put("User-agent", System.getProperty("http.agent"));
+                    return headers;
+                }
+            };
+
+            queue.add(postRequest);
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(
                     this,
@@ -73,7 +124,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             );
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
+            //sendNotification(geofenceTransitionDetails);
             Log.i(TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
