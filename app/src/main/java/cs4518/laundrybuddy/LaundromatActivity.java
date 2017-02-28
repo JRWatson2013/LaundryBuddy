@@ -123,7 +123,7 @@ public class LaundromatActivity extends FragmentActivity {
             LaundryMachineView machineView;
             LaundryMachine machine = mLocation.machineList.get(position);
             if (convertView == null) {
-                machineView = new LaundryMachineView(mContext,machine.getMachNum(),machine.getState());
+                machineView = new LaundryMachineView(mContext,machine.getMachNum(),machine.getState(),machine.getType());
                 machineView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200));
                 machineView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 machineView.setPadding(0,0,0,25);
