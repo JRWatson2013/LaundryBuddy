@@ -31,16 +31,17 @@
 
         <activity
             android:name=".Main"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InstructionsFragment"></activity>
-        <activity android:name=".TimerFragment"></activity>
-        <activity android:name=".LaundromatActivity"></activity>
+        <activity android:name=".LaundromatActivity"
+            android:screenOrientation="portrait"></activity>
         <service android:name=".GeofenceTransitionsIntentService"/>
     </application>
 
