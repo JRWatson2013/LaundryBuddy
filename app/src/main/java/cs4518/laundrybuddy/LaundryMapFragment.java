@@ -134,6 +134,13 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                     busy.setVisibility(View.GONE);
                     return v;
                 }
+                if(((Integer)(thisLocation.getNumWashers())).equals(-1)){
+                    title.setText(thisLocation.getName());
+                    washers.setText("Unregistered");
+                    dryers.setVisibility(View.GONE);
+                    busy.setVisibility(View.GONE);
+                    return v;
+                }
                 title.setText(thisLocation.getName());
                 Integer washersAvailableNow = thisLocation.getNumWashers() - thisLocation.getWashersInUse() - thisLocation.getCheckInCount();
                 washers.setText(washersAvailableNow + "/" + thisLocation.getNumWashers() + " washers available");
@@ -312,6 +319,8 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
             return;
         LaundryLocation loc;
         loc = markerLaundryMap.get(marker.getId());
+        if(((Integer)(loc.getNumWashers())).equals(-1))
+            return;
         Intent i = new Intent(getActivity(), LaundromatActivity.class);
         i.putExtra("location",loc);
         startActivityForResult(i,9001);
