@@ -14,10 +14,13 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.instantapps.LaunchData;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LaundryLocation implements Parcelable {
@@ -31,6 +34,7 @@ public class LaundryLocation implements Parcelable {
     private int mWashersInUse;
     private int mDryersInUse;
     private int mCheckInCount;
+    public List<LaundryMachine> machineList;
 
     LaundryLocation(String name, String ID, LatLng location, String place){
         mName = name;
@@ -45,6 +49,7 @@ public class LaundryLocation implements Parcelable {
             mID = obj.getString("id");
             this.setLocation(obj.getJSONObject("geometry").getJSONObject("location"));
             this.setPlace(obj.getString("vicinity"));
+            machineList = new ArrayList<LaundryMachine>();
         } catch (JSONException e) {
             Log.v("LG", "Could not convert JSON to LaundryLocation");
         }
@@ -54,6 +59,7 @@ public class LaundryLocation implements Parcelable {
         mName = name;
         mID = ID;
         this.setLocation(location);
+        machineList = new ArrayList<LaundryMachine>();
     }
 
     public String getPlace() {
@@ -138,7 +144,7 @@ public class LaundryLocation implements Parcelable {
 
     void getInfoFromLaundryBuddy(RequestQueue queue){
 
-        String url = "http://130.215.251.227:8080/getPlaceInfo";
+        String url = "http://130.215.173.246:8080/getPlaceInfo";
         Map<String, String> jsonParams = new HashMap<String, String>();
         jsonParams.put("location",this.getID());
         JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST,url,
@@ -168,6 +174,7 @@ public class LaundryLocation implements Parcelable {
                             setDryersInUse(response.getInt("dryersInUse"));
                             setWashersInUse(response.getInt("washersInUse"));
                             setCheckInCount(response.getInt("checkInCount"));
+                            setMachineList(response.getJSONArray("machineList"));
                         } catch (JSONException e){
                             Log.v("LG","Error parsing placeInfo JSON object");
                         }
@@ -190,6 +197,21 @@ public class LaundryLocation implements Parcelable {
         queue.add(postRequest);
     }
 
+    void setMachineList(JSONArray jo){
+        for(int i = 0; i < jo.length(); i ++) {
+            try {
+                JSONObject thisMachine = jo.getJSONObject(i);
+                machineList.add(new LaundryMachine(thisMachine.getInt("machNum"), thisMachine.getString("state"), thisMachine.getString("type")));
+            } catch (JSONException e){
+                Log.v("LG","Error parsing machine number: " + i);
+            }
+        }
+    }
+
+    void setMachineList(List<LaundryMachine> l){
+        machineList = l;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -208,7 +230,9 @@ public class LaundryLocation implements Parcelable {
         parcel.writeInt(mWashersInUse);
         parcel.writeInt(mDryersInUse);
         parcel.writeInt(mCheckInCount);
+        parcel.writeTypedList(machineList);
     }
+
 
     public static final Parcelable.Creator<LaundryLocation> CREATOR = new Parcelable.Creator<LaundryLocation>() {
         public LaundryLocation createFromParcel(Parcel in) {
@@ -233,5 +257,8 @@ public class LaundryLocation implements Parcelable {
         setWashersInUse(in.readInt());
         setDryersInUse(in.readInt());
         setCheckInCount(in.readInt());
+        machineList = new ArrayList<LaundryMachine>();
+        in.readTypedList(machineList, LaundryMachine.CREATOR);
     }
+
 }

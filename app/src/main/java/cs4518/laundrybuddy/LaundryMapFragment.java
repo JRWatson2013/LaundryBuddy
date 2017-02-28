@@ -57,6 +57,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
     private static View view;
+    private Marker myPositionMarker;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -116,6 +117,10 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
             public View getInfoWindow(Marker marker) {
                 LaundryLocation thisLocation = markerLaundyMap.get(marker.getId());
                 View v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
+                if(myPositionMarker==marker) {
+                    v.setVisibility(View.GONE);
+                    return v;
+                }
                 TextView title =(TextView) v.findViewById(R.id.info_window_title);
                 title.setText(thisLocation.getName());
                 TextView washers =(TextView) v.findViewById(R.id.info_window_washers);
@@ -182,7 +187,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.curlocation));
 //        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        mMap.addMarker(markerOptions);
+        myPositionMarker = mMap.addMarker(markerOptions);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 6));
 
         // Instantiate the RequestQueue.

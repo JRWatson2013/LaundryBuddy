@@ -42,22 +42,27 @@
 
             <TextView
                 android:text="Number of Washers Available:"
-                android:layout_width="170dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:id="@+id/textView3" />
+                android:id="@+id/washerCountTextView" />
 
             <TextView
                 android:text="Number of Driers Available:"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:id="@+id/textView4"
-                android:layout_weight="488.25" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dryerCountTextView"
+                android:layout_weight="1" />
         </LinearLayout>
 
         <GridView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:horizontalSpacing="2dp"
             android:stretchMode="columnWidth"
+            android:padding="0dp"
+            android:layout_marginRight="-1dp"
             android:id="@+id/GridView"
             android:numColumns="2" />
 
