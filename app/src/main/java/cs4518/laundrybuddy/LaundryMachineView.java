@@ -16,24 +16,34 @@ public class LaundryMachineView extends ImageView {
 
     Integer mMachNum;
     String mState;
+    String mType;
     private Paint mTextPaint;
     private int textXPos;
     private int textYPos;
 
-    public LaundryMachineView(Context c, Integer machNum, String state) {
+    public LaundryMachineView(Context c, Integer machNum, String state, String type) {
         super(c);
 
         mMachNum = machNum;
         mState = state;
+        mType = type;
 
         init();
     }
 
     private void initBitmap(){
-        if(mState.equals("free"))
-            this.setImageResource(R.drawable.washer1open);
-        else if(mState.equals("inUse"))
-            this.setImageResource(R.drawable.washer1inuse);
+        if(mType.equals("washer")) {
+            if (mState.equals("free"))
+                this.setImageResource(R.drawable.good_washer);
+            else if (mState.equals("inUse"))
+                this.setImageResource(R.drawable.broken_washer);
+        }
+        else if(mType.equals("dryer")){
+            if (mState.equals("free"))
+                this.setImageResource(R.drawable.good_dryer);
+            else if (mState.equals("inUse"))
+                this.setImageResource(R.drawable.broken_dryer);
+        }
     }
 
     public void setState(String newState){
