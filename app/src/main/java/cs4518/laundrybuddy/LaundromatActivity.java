@@ -38,9 +38,9 @@ public class LaundromatActivity extends FragmentActivity {
         address.setText(mLocation.getPlace());
 
         TextView nWasher = (TextView) findViewById(R.id.washerCountTextView);
-        nWasher.setText(mLocation.getNumWashers() + " washers available");
+        nWasher.setText("~" + ((Integer)(mLocation.estimateAvailableWashers())).toString());
         TextView nDryer = (TextView) findViewById(R.id.dryerCountTextView);
-        nDryer.setText(mLocation.getNumDryers() + " dryers available");
+        nDryer.setText("~" + ((Integer)(mLocation.estimateAvailableDryers())).toString());
 
         final GridView gridview = (GridView) findViewById(R.id.GridView);
         gridview.setAdapter(new ImageAdapter(this));

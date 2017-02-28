@@ -142,10 +142,8 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                     return v;
                 }
                 title.setText(thisLocation.getName());
-                Integer washersAvailableNow = thisLocation.getNumWashers() - thisLocation.getWashersInUse() - thisLocation.getCheckInCount();
-                washers.setText(washersAvailableNow + "/" + thisLocation.getNumWashers() + " washers available");
-                Integer dryersAvailableNow = thisLocation.getNumDryers() - thisLocation.getDryersInUse() - thisLocation.getCheckInCount();
-                dryers.setText(dryersAvailableNow + "/" + thisLocation.getNumDryers() + " dryers available");
+                washers.setText(thisLocation.estimateAvailableWashers() + "/" + thisLocation.getNumWashers() + " washers available");
+                dryers.setText(thisLocation.estimateAvailableDryers() + "/" + thisLocation.getNumDryers() + " dryers available");
 
                 if(thisLocation.getCheckInCount()==0){
                     busy.setTextColor(Color.GREEN);

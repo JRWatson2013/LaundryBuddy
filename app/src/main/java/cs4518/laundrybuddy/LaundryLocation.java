@@ -316,4 +316,18 @@ public class LaundryLocation implements Parcelable {
         };
         queue.add(postRequest);
     }
+
+    public Integer estimateAvailableWashers(){
+        Integer ret = mNumWashers - mCheckInCount - mWashersInUse;
+        if(ret < 0)
+            ret = 0;
+        return ret;
+    }
+
+    public Integer estimateAvailableDryers(){
+        Integer ret = mNumDryers - mCheckInCount - mDryersInUse;
+        if(ret < 0)
+            ret = 0;
+        return ret;
+    }
 }
