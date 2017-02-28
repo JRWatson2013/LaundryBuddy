@@ -144,6 +144,7 @@ public class LaundryLocation implements Parcelable {
 
     void getInfoFromLaundryBuddy(RequestQueue queue){
 
+        this.machineList = new ArrayList<LaundryMachine>();
         String url = "http://130.215.173.246:8080/getPlaceInfo";
         Map<String, String> jsonParams = new HashMap<String, String>();
         jsonParams.put("location",this.getID());
@@ -261,4 +262,58 @@ public class LaundryLocation implements Parcelable {
         in.readTypedList(machineList, LaundryMachine.CREATOR);
     }
 
+
+    public void postMachineUpdate(int machI, String newState, RequestQueue queue){
+
+        this.machineList.get(machI).setState(newState);
+
+        //{"locationID":"838996bf7d872e2c9eebb2d5c365251a463d4a1f","washerChanges":[{"machNum":0,"newState":"inUse"}],"dryerChanges":[]}
+
+        String url = "http://130.215.173.246:8080/updateMachines";
+
+        JSONObject jsonParams = new JSONObject();
+        try {
+            jsonParams.put("locationID", this.getID());
+            JSONObject machObj = new JSONObject();
+            JSONArray machArray = new JSONArray();
+            machObj.put("machNum",machI);
+            machObj.put("newState",newState);
+            machArray.put(machObj);
+            if (machineList.get(machI).getType().equals("washer")) {
+                jsonParams.put("washerChanges", machArray);
+                jsonParams.put("dryerChanges", new JSONArray());
+            } else if (machineList.get(machI).getType().equals("dryer")) {
+                jsonParams.put("washerChanges", new JSONArray());
+                jsonParams.put("dryerChanges", machArray);
+            }
+        } catch (JSONException e){
+            Log.v("LG","Could not form updateMachines request");
+            return;
+        }
+
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST,url,
+                jsonParams,
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.v("LG","Successfully sent machine update");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.v("LG","Did not receive JSON response for machine update");
+                        //error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("User-agent", System.getProperty("http.agent"));
+                return headers;
+            }
+        };
+        queue.add(postRequest);
+    }
 }

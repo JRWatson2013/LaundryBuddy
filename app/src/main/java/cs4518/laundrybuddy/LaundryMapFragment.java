@@ -1,6 +1,5 @@
 package cs4518.laundrybuddy;
 
-import android.*;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -47,17 +46,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.app.Activity.RESULT_OK;
+
 
 public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener{
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
     private Button mLaundromatButton;
-    private Map<String,LaundryLocation> markerLaundyMap;
+    public static Map<String,LaundryLocation> markerLaundryMap;
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
     private static View view;
     private Marker myPositionMarker;
+    public static RequestQueue queue;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,6 +84,9 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Instantiate the RequestQueue.
+        queue = Volley.newRequestQueue(getContext());
 
         mApiClient = new GoogleApiClient.Builder(getActivity())
                 .addApi(LocationServices.API)
@@ -115,7 +120,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker marker) {
-                LaundryLocation thisLocation = markerLaundyMap.get(marker.getId());
+                LaundryLocation thisLocation = markerLaundryMap.get(marker.getId());
                 View v = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
                 if(myPositionMarker==marker) {
                     v.setVisibility(View.GONE);
@@ -137,7 +142,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                 return null;
             }
         });
-        markerLaundyMap = new HashMap<String, LaundryLocation>();
+        markerLaundryMap = new HashMap<String, LaundryLocation>();
     }
 
     @Override
@@ -179,6 +184,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
             }
         }
     }
+
     public void initMap(Location location){
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.clear();
@@ -189,9 +195,6 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
 //        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         myPositionMarker = mMap.addMarker(markerOptions);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMap.getMaxZoomLevel() - 6));
-
-        // Instantiate the RequestQueue.
-        final RequestQueue queue = Volley.newRequestQueue(getContext());
 
         String requestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyCp0KMvz_OD8nDFZ1dcAJU9s4kOwVjqjUg&location=" + latLng.latitude + "," + latLng.longitude + "&rankby=distance&type=laundry";
         Log.v("LB",requestURL);
@@ -225,7 +228,7 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
                             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                             markerOptions.snippet("30 Washers\n40 Dryers\nVery Busy");
                             String id = mMap.addMarker(markerOptions).getId();
-                            markerLaundyMap.put(id,loc);
+                            markerLaundryMap.put(id,loc);
                             mGeofenceList.add(new Geofence.Builder()
                                     .setRequestId(loc.getID())
                                     .setCircularRegion(
@@ -257,10 +260,23 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onInfoWindowClick(Marker marker){
         LaundryLocation loc;
-        loc = markerLaundyMap.get(marker.getId());
+        loc = markerLaundryMap.get(marker.getId());
         Intent i = new Intent(getActivity(), LaundromatActivity.class);
         i.putExtra("location",loc);
-        startActivity(i);
+        startActivityForResult(i,9001);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 9001) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                for(LaundryLocation l : markerLaundryMap.values()){
+                    l.getInfoFromLaundryBuddy(queue);
+                }
+            }
+        }
     }
 
     private GeofencingRequest getGeofencingRequest() {

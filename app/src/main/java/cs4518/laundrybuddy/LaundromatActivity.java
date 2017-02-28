@@ -2,6 +2,7 @@ package cs4518.laundrybuddy;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -22,9 +23,6 @@ import android.widget.Toast;
 
 public class LaundromatActivity extends FragmentActivity {
 
-    private int totalMachines;
-    private int washersOpen;
-    private int dryersOpen;
     private LaundryLocation mLocation;
 
     @Override
@@ -38,10 +36,6 @@ public class LaundromatActivity extends FragmentActivity {
         name.setText(mLocation.getName());
         TextView address = (TextView) findViewById(R.id.laundromat_address);
         address.setText(mLocation.getPlace());
-
-        totalMachines = mLocation.getNumDryers() + mLocation.getNumWashers();
-        washersOpen = mLocation.getNumWashers() - mLocation.getWashersInUse();
-        dryersOpen = mLocation.getNumDryers() - mLocation.getDryersInUse();
 
         TextView nWasher = (TextView) findViewById(R.id.washerCountTextView);
         nWasher.setText(mLocation.getNumWashers() + " washers available");
@@ -59,10 +53,12 @@ public class LaundromatActivity extends FragmentActivity {
                 if(clickedMachine.getState().equals("free")) {
                     clickedMachine.setState("inUse");
                     mLocation.machineList.set(position, clickedMachine);
+                    mLocation.postMachineUpdate(position,"inUse",LaundryMapFragment.queue);
                 }
                 else if (clickedMachine.getState().equals("inUse")) {
                     clickedMachine.setState("free");
                     mLocation.machineList.set(position, clickedMachine);
+                    mLocation.postMachineUpdate(position,"free",LaundryMapFragment.queue);
                 }
 
                 // Update gridview with changes
@@ -76,6 +72,9 @@ public class LaundromatActivity extends FragmentActivity {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent data = new Intent();
+                data.putExtra("location",mLocation);
+                setResult(RESULT_OK,data);
                 finish();
             }
         });
