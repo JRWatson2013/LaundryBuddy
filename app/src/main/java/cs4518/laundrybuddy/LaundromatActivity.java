@@ -63,8 +63,8 @@ public class LaundromatActivity extends FragmentActivity {
 
                 // Update gridview with changes
                 gridview.setAdapter(new ImageAdapter(getBaseContext()));
-                Toast.makeText(LaundromatActivity.this, "Clicked Item:" + position,
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LaundromatActivity.this, "Clicked Item:" + position,
+//                        Toast.LENGTH_SHORT).show();
             }
         });
 
