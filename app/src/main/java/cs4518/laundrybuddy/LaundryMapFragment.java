@@ -28,6 +28,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,7 +52,7 @@ import java.util.Map;
 import static android.app.Activity.RESULT_OK;
 
 
-public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener{
+public class LaundryMapFragment extends Fragment implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener{
 
     private GoogleMap mMap;
     public GoogleApiClient mApiClient;
@@ -169,17 +171,17 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            LocationRequest mLocationRequest = LocationRequest.create()
-//                    .setInterval(5000)
-//                    .setFastestInterval(3000)
-//                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-//            LocationServices.FusedLocationApi.requestLocationUpdates(
-//                    mApiClient, mLocationRequest, this);
-//        }
+            LocationRequest mLocationRequest = LocationRequest.create()
+                    .setInterval(5000)
+                    .setFastestInterval(3000)
+                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mApiClient, mLocationRequest, this);
+        }
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
             initMap(mLastLocation);
         }
-    }
+    
 
     @Override
     public void onConnectionSuspended (int i) {
@@ -350,5 +352,11 @@ public class LaundryMapFragment extends Fragment implements OnMapReadyCallback, 
         }
         Intent intent = new Intent(getActivity(), GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(getActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public void onLocationChanged (Location location) {
+        LatLng newLoc = new LatLng(location.getLatitude(), location.getLongitude());
+        myPositionMarker.setPosition(newLoc);
     }
 }
