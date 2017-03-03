@@ -177,10 +177,10 @@ public class LaundryMapFragment extends Fragment implements LocationListener, On
                     .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mApiClient, mLocationRequest, this);
-        }
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
             initMap(mLastLocation);
         }
+    }
     
 
     @Override
