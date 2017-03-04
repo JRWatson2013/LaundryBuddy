@@ -74,7 +74,16 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/bad_example_label"
                     android:layout_weight="1" />
+
             </LinearLayout>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="511dp"
+                app:srcCompat="@drawable/washing_guide"
+                android:id="@+id/imageView2"
+                android:paddingTop="30dp" />
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
